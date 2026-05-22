@@ -1,14 +1,14 @@
 const express = require('express');
 require('dotenv').config();
 const PORT = process.env.PORT || 5000;
-const userRouter = require('./routes/userRouter')
+const adminRouter = require('./routes/adminRouter');
 //const rateLimiter = require('./middleware/rateLimiter');
 const swaggerUI = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc')
 
 const app = express()
 app.use(express.json())
-app.use('/api/v1/user', userRouter)
+app.use('/api/v1/user', adminRouter)
 
 
 const swaggerDefinition = {
