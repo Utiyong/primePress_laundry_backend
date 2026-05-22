@@ -10,7 +10,7 @@ exports.signUp = async (req, res, next) => {
         const userDetails = {
             fullName: req.body.fullName,
             emailAddress: req.body.emailAddress,
-            password: req.body.password,
+            // password: req.body.password,
             phoneNumber: `+234${req.body.phoneNumber}`
         };
 
@@ -31,9 +31,10 @@ exports.signUp = async (req, res, next) => {
 
         const OTP = otpGenerator.generate(4, {upperCaseAlphabets: false, lowerCaseAlphabets: false, specialChars: false });
         const expiresAt = new Date(Date.now() + 10 * 60000);
+        const password = otpGenerator.generate(10, {upperCaseAlphabets: true, lowerCaseAlphabets: true, specialChars: true, digits: true});
 
         const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(userDetails.password, salt);
+        const hashedPassword = await bcrypt.hash(password, salt);
 
         const user = await userModel.create({
             fullName: userDetails.fullName,
@@ -47,6 +48,7 @@ exports.signUp = async (req, res, next) => {
             fullName: user.fullName,
             emailAddress: user.emailAddress,
             phoneNumber: user.phoneNumber,
+            password: password
         };
 
         const emailOptions = {
