@@ -1,17 +1,23 @@
-const userModel = require('../models/userModel');
+const adminModel = require('../models/admin');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const sendMail = require('../utils/nodemailer');
+// const sendMail = require('../utils/nodemailer');
 const otpGenerator = require('otp-generator');
 const {signUpTemplate} = require('../utils/emailTemplate');
+const brevo = require('../utils/brevo')
+const {signUpOtpTemplate, resendOtpTemplate, forgetPasswordTemplate, resetPasswordSuccessfulTemplate} = require('../utils/email')
+
+
+
 
 exports.signUp = async (req, res, next) => {
     try {
-        const userDetails = {
+        const userDetails = { 
             fullName: req.body.fullName,
             emailAddress: req.body.emailAddress,
             // password: req.body.password,
-            phoneNumber: `+234${req.body.phoneNumber}`
+            phoneNumber: `+234${req.body.phoneNumber}`,
+            password: req.body.password
         };
 
         //  if ( userDetails.password !== req.body.confirmPassword) {
@@ -21,7 +27,7 @@ exports.signUp = async (req, res, next) => {
         //      })
         // }
 
-        const emailExists = await userModel.findOne({ email: userDetails.emailAddress });
+        const emailExists = await adminModel.findOne({ email: userDetails.emailAddress });
         if (emailExists) {
             return next ({
                 message: 'email already exists', 
@@ -32,17 +38,23 @@ exports.signUp = async (req, res, next) => {
         const OTP = otpGenerator.generate(4, {upperCaseAlphabets: false, lowerCaseAlphabets: false, specialChars: false });
         const expiresAt = new Date(Date.now() + 10 * 60000);
         const password = otpGenerator.generate(10, {upperCaseAlphabets: true, lowerCaseAlphabets: true, specialChars: true, digits: true});
+        const OTP = otpGenerator.generate(6, {upperCaseAlphabets: false, lowerCaseAlphabets: false, specialChars: false });
+        console.log(OTP)
 
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        const user = await userModel.create({
+        const user = new adminModel({
             fullName: userDetails.fullName,
             emailAddress: userDetails.emailAddress,
             phoneNumber: userDetails.phoneNumber,
             otp: OTP,
             password: hashedPassword,
+
         });
+
+        await user.save();
+
 
         const data = {
             fullName: user.fullName,
@@ -51,18 +63,23 @@ exports.signUp = async (req, res, next) => {
             password: password
         };
 
-        const emailOptions = {
-            email: user.emailAddress,
-            subject: 'Welcome to Viju Web App!!',
-            html: signUpTemplate(user.fullName, OTP)
-        };
+         
 
-        await sendMail(emailOptions);
+         console.log(brevo)
 
+    await brevo(user.emailAddress, user.fullName, OTP, signUpOtpTemplate(user.fullName, OTP));
+
+        
         res.status(201).json({
             message: 'User created successfully',
-            data
+            data: user
         });
+
+
+
+
+
+
     } catch (error) {
         next({
             message: error.message,
@@ -76,13 +93,16 @@ exports.verifyEmail = async(req,res)=> {
        //extract the email and OTP from the request body
        const{emailAddress, otp} = req.body;
        //find the user trying to verify
-       const user = await userModel.findOne({emailAddress})
+       const user = await adminModel.findOne({emailAddress})
+
        if (!user) {
         return res.status(404).json({
             message: 'User not found'
         })
        }
-       if (new Date() > user.otpExpiresAt || user.otp != otp) {
+
+       if ( Date.now() > user.otpExpiresAt || user.otp != otp) {
+        
         return res.status (400).json({
             message: 'Invalid OTP'
         })
@@ -90,14 +110,17 @@ exports.verifyEmail = async(req,res)=> {
 
        //verify the user and delete the OTP
        user.isVerfied = true;
-       user.otp = null
-       user.otpExpiresAt = null
+    //    user.otp = null
+    //    user.otpExpiresAt = null
+
+    //    await brevo(user.emailAddress, user.fullName, "Your email has been successfully verified. You can now log in to your account.")
 
        await user.save()
 
        //send a success response
        res.status(200).json({
-        message: 'User verified successfully'
+        message: 'User verified successfully',
+        data: user
        })
 
     } catch (error) {
@@ -111,30 +134,28 @@ exports.resendOTP = async(req, res) => {
    try {
      const {emailAddress} = req.body;
     //find the user trying to verify
-    const user = await userModel.findOne({emailAddress})
+    const user = await adminModel.findOne({emailAddress})
        if (!user) {
         return res.status(404).json({
-            message: 'User not found'
+            message: 'Admin not found'
         })
        }
 
-       const OTP = otpGenerator.generate(4, {upperCaseAlphabets:false, lowerCaseAlphabets:false, specialChars:false});
+       const OTP = otpGenerator.generate(6, {upperCaseAlphabets:false, lowerCaseAlphabets:false, specialChars:false});
+       console.log(OTP)
 
-        const expiresAt = new Date(Date.now() + 5 * 60000)
 
         user.otp = OTP;
         user.otpExpiresAt = expiresAt;
+        
 
-        const emailOptions = {
-            email: user.emailAddress,
-            subject: 'New OTP confirmation',
-            html: signUpTemplate(user.fullName, OTP)
-        }
+        
 
-        await sendMail(emailOptions)
+        
 
         //save changes to the database
         await user.save()
+        await brevo(user.emailAddress, user.fullName, OTP, resendOtpTemplate(user.fullName, OTP))
 
         //send a success response
         res.status(200).json({
@@ -147,9 +168,101 @@ exports.resendOTP = async(req, res) => {
    }
 }
 
+exports.forgetPass = async(req, res) =>{
+    try{
+        const {emailAddress} = req.body
+
+        const user = await adminModel.findOne({emailAddress: emailAddress.toLowerCase()})
+
+        if(!user){
+            return res.status(400).json({
+                message: 'email not found'
+            })
+        }
+
+        const OTP = otpGenerator.generate(6, {upperCaseAlphabets:false, lowerCaseAlphabets:false, specialChars:false});
+
+
+        //  const expiresAt = new Date(Date.now() + 1000 * 60 * 5)
+        //  user.otpExpiresAt = expiresAt;
+         user.otp = OTP;
+        //  if(Date.now() > user.otpExpiresAt || OTP != user.otp){
+        //     return res.status(400).json({
+        //         message: "invalid Otp"
+        //     })
+        //  }
+
+
+        //  const salt = await bcrypt.genSalt(10)
+        //  const hashPassword = await bcrypt.hash(password, salt)
+
+        //  user.password = hashPassword
+
+         await user.save()
+         
+         const data = {
+            name: user.fullName,
+            otp: user.otp
+         }
+
+        await brevo(user.emailAddress, user.fullName, OTP, forgetPasswordTemplate(user.fullName, OTP))
+
+      res.status(200).json({
+        message: 'successfully forgotten Password',
+        data
+      })
+
+    }
+    catch(error){
+        console.log(error)
+        res.status(500).json({
+            message: 'something went wrong'
+        })
+
+
+    }
+}
+
+
+exports.resetPassword = async(req, res) =>{
+    try{
+        const {emailAddress, password} = req.body
+
+        const checkEmail = await adminModel.findOne({emailAddress: emailAddress.toLowerCase()})
+
+        if(!checkEmail){
+            return res.status(404).json({
+                message: 'email not found'
+            })
+        }
+        const salt = await bcrypt.genSalt(10)
+        const hashPassword = await bcrypt.hash(password, salt)
+
+        checkEmail.password = hashPassword
+        await checkEmail.save()
+
+        await brevo(checkEmail.emailAddress, checkEmail.fullName, null, resetPasswordSuccessfulTemplate(checkEmail.fullName))
+
+        res.status(200).json({
+            message: 'successfully reset password'
+        })
+
+
+    }
+    catch(error){
+        console.log(error)
+        res.status(500).json({
+            message: 'something went wrong'
+        })
+
+    }
+}
+
+
+
 exports.getOneUser = async (req, res, next) => {
     try {
-        const user = await userModel.findOne({ id: req.params.id });
+        const user = await adminModel.findOne({ id: req.params.id });
         if (!user) {
             return next({
                 message: 'User not found',
@@ -170,7 +283,7 @@ exports.getOneUser = async (req, res, next) => {
 
 exports.getAllUsers = async(req, res, next) => {
     try {
-        const users = await userModel.find().select('-password');
+        const users = await adminModel.find().select('-password');
         if(!users){
             res.status(404).json({
                 message: 'No users found'
@@ -199,7 +312,7 @@ exports.login = async (req, res, next) => {
     try {
          const { emailAddress, password } = req.body
 
-        const user = await userModel.findOne({emailAddress})
+        const user = await adminModel.findOne({emailAddress})
         if (!user) {
             return next({
                 message: 'User not found',
