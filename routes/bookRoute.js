@@ -4,7 +4,9 @@ const router = express.Router()
 
 const {createBooking, getAllBookings, getOneBook} = require('../controllers/bookingController')
 
-router.post('/book', createBooking)
+const {createBooksValidation} = require('../middleWare/bookingValidation')
+
+router.post('/book', createBooksValidation, createBooking)
 
 router.get('/allbooks', getAllBookings)
 
