@@ -5,9 +5,7 @@ const bookingModel = require('../modelS/booking')
 
 exports.createBooking = async(req, res) =>{
     try{
-        const {name,  phoneNumber, pickUpAddress, specialInstructions } = req.body
-
-         const pickUpDateAndTime = new Date();
+        const {name,  phoneNumber, pickUpAddress, pickUpDateAndTime, specialInstructions } = req.body
 
         const bookings = new bookingModel({
             name,
