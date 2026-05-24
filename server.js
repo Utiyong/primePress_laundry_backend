@@ -2,6 +2,7 @@ const express = require('express');
 require('dotenv').config();
 const PORT = process.env.PORT || 5000;
 const adminRouter = require('./routes/adminRouter');
+const bookingRouter = require('./routes/bookRoute');
 //const rateLimiter = require('./middleware/rateLimiter');
 const swaggerUI = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc')
@@ -9,6 +10,7 @@ const swaggerJsdoc = require('swagger-jsdoc')
 const app = express()
 app.use(express.json())
 app.use('/api/v1/user', adminRouter)
+app.use('/api/v1/booking', bookingRouter)
 
 
 const swaggerDefinition = {
