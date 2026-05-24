@@ -2,6 +2,8 @@ const { signUp, getAllUsers, getOneUser, login, verifyEmail, resendOTP, forgetPa
 
 const router = require('express').Router();
 
+const {signUpValidator, verifyEmailValidator, resendOTPValidator, forgetPassValidator, resetPasswordValidator, loginValidator} = require('../middleWare/adminValidation')
+
 /**
  * @swagger
  * components:
@@ -72,7 +74,7 @@ const router = require('express').Router();
  *                   description: A success message
  *                   example: User signed up successfully
  */
-router.post('/signUp', signUp)
+router.post('/signUp', signUpValidator, signUp)
 
 /**
  * @swagger
@@ -130,8 +132,8 @@ router.post('/signUp', signUp)
  */
 router.get('/getUsers',getAllUsers)
 
-router.post('/verifyEmail', verifyEmail)
-router.post('/resendOTP', resendOTP)
+router.post('/verifyEmail', verifyEmailValidator, verifyEmail)
+router.post('/resendOTP', resendOTPValidator, resendOTP)
 router.get('/getOneUser/:id', getOneUser)
 
 /**
@@ -170,11 +172,11 @@ router.get('/getOneUser/:id', getOneUser)
  *                   description: A success message
  *                   example: User logged in successfully
  */
-router.post('/login', login)
+router.post('/login', loginValidator, login)
 
-router.post('/forget-password', forgetPass)
+router.post('/forget-password', forgetPassValidator, forgetPass)
 
-router.post('/reset-Password', resetPassword )
+router.post('/reset-Password', resetPasswordValidator, resetPassword )
 
 
 module.exports = router;
