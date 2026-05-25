@@ -2,6 +2,8 @@ const { signUp, getAllUsers, getOneUser, login, verifyEmail, resendOTP, forgetPa
 
 const router = require('express').Router();
 
+const {signUpValidator, verifyEmailValidator, resendOTPValidator, forgetPassValidator, resetPasswordValidator, loginValidator} = require('../middleWare/adminValidation')
+
 /**
  * @swagger
  * components:
@@ -72,7 +74,7 @@ const router = require('express').Router();
  *                   description: A success message
  *                   example: User signed up successfully
  */
-router.post('/signUp', signUp)
+router.post('/signUp', signUpValidator, signUp)
 
 /**
  * @swagger
@@ -135,70 +137,8 @@ router.post('/signUp', signUp)
  */
 router.get('/getUsers',getAllUsers)
 
-/** 
- * @swagger
- * /api/v1/user/verifyEmail:
- *   post:
- *     tags:
- *       - User
- *     summary: Verify user email
- *     description: Verify a user's email address using the OTP sent to their email
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               emailAddress:
- *                 type: string
- *                 description: User email address
- *                 example: example@example.com
- *               otp:
- *                 type: string
- *                 description: One-Time Password sent to the user's email
- *                 example: 123456
- */
 router.post('/verifyEmail', verifyEmail)
-
-/** 
- * @swagger
- * /api/v1/user/resendOTP:
- *   post:
- *     tags:
- *       - User
- *     summary: Resend OTP
- *     description: Resend a new One-Time Password to the user's email
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               emailAddress:
- *                 type: string
- *                 description: User email address
- *                 example: example@example.com
- */
 router.post('/resendOTP', resendOTP)
-
-/** 
- * @swagger
- * /api/v1/user/getOneUser/{id}:
- *   get:
- *     tags:
- *       - User
- *     summary: Get one user
- *     description: Get a single user by their ID
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: The user ID
- */
 router.get('/getOneUser/:id', getOneUser)
 
 /**
@@ -237,55 +177,11 @@ router.get('/getOneUser/:id', getOneUser)
  *                   description: A success message
  *                   example: User logged in successfully
  */
-router.post('/login', login)
+router.post('/login', loginValidator, login)
 
-/** 
- * @swagger
- * /api/v1/user/forget-password:
- *   post:
- *     tags:
- *       - User
- *     summary: Request password reset
- *     description: Request a password reset for an existing user
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               emailAddress:
- *                 type: string
- *                 description: User email address
- *                 example: example@example.com
- */
 router.post('/forget-password', forgetPass)
 
-/** 
- * @swagger
- * /api/v1/user/reset-password:
- *   post:
- *     tags:
- *       - User
- *     summary: Reset user password
- *     description: Reset the password for an existing user
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               emailAddress:
- *                 type: string
- *                 description: User email address
- *                 example: example@example.com
- *               newPassword:
- *                 type: string
- *                 description: New password for the user
- *                 example: newpassword123
- */
-router.post('/reset-password', resetPassword)
+router.post('/reset-Password', resetPassword )
 
 
 module.exports = router;

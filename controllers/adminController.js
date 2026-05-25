@@ -141,6 +141,8 @@ exports.resendOTP = async(req, res) => {
        const OTP = otpGenerator.generate(6, {upperCaseAlphabets:false, lowerCaseAlphabets:false, specialChars:false});
        console.log(OTP)
 
+       const expiresAt = new Date(Date.now() + 1000 * 60 * 5)
+
 
         user.otp = OTP;
         user.otpExpiresAt = expiresAt;
@@ -232,6 +234,15 @@ exports.resetPassword = async(req, res) =>{
                 message: 'email not found'
             })
         }
+
+        const passwordCorrect = await bcrypt.compare(password, checkEmail.password);
+        if(passwordCorrect){
+            return res.status(404).json({
+                message: 'please enter a new Password'
+            }) 
+        }
+        
+
         const salt = await bcrypt.genSalt(10)
         const hashPassword = await bcrypt.hash(password, salt)
 
