@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const adminSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema({
     fullName: {
         type: String,
         required: true
@@ -9,10 +9,10 @@ const adminSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    password: {
-        type: String,
-        required: true
-    },
+    // password: {
+    //     type: String,
+    //     required: true
+    // },
     phoneNumber: {
         type: String,
         required: true
@@ -20,13 +20,8 @@ const adminSchema = new mongoose.Schema({
     otp: {
         type: String,
     },
-    otpExpiresAt: {
-        type: Date,
-        default:  () => new Date(Date.now() + (1000 * 5 * 60))
-    }
-   
 }, {timestamps: true});
 
-const adminModel = mongoose.model('admin', adminSchema);
+const userModel = mongoose.model('users', userSchema);
 
-module.exports = adminModel;
+module.exports = userModel;
