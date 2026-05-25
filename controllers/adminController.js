@@ -42,7 +42,6 @@ exports.signUp = async (req, res, next) => {
         const user = new adminModel({
             fullName: userDetails.fullName,
             emailAddress: userDetails.emailAddress,
-            phoneNumber: userDetails.phoneNumber,
             otp: OTP,
             password: hashedPassword,
 
@@ -54,7 +53,6 @@ exports.signUp = async (req, res, next) => {
         const data = {
             fullName: user.fullName,
             emailAddress: user.emailAddress,
-            phoneNumber: user.phoneNumber,
         };
 
          
@@ -298,7 +296,6 @@ exports.getAllUsers = async(req, res, next) => {
         const data = users.map(user => ({
             fullName: user.fullName,
             emailAddress: user.emailAddress,
-            phoneNumber: user.phoneNumber,
         }))
 
         res.status(200).json({
@@ -322,6 +319,12 @@ exports.login = async (req, res, next) => {
             return next({
                 message: 'User not found',
                 statusCode: 404
+            })
+        }
+        if(!user.isVerfied){
+            return next({
+                message: 'Please verify your email to login',
+                statusCode: 403
             })
         }
 

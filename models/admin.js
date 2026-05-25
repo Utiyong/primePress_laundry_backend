@@ -19,6 +19,10 @@ const adminSchema = new mongoose.Schema({
     otpExpiresAt: {
         type: Date,
         default:  () => new Date(Date.now() + (1000 * 5 * 60))
+    },
+    isVerfied:{
+        type: Boolean,
+        default: false
     }
    
 }, {timestamps: true});
