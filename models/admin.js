@@ -13,16 +13,20 @@ const adminSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    phoneNumber: {
-        type: String,
-        required: true
-    },
+    // phoneNumber: {
+    //     type: String,
+    //     required: true
+    // },
     otp: {
         type: String,
     },
     otpExpiresAt: {
         type: Date,
         default:  () => new Date(Date.now() + (1000 * 5 * 60))
+    },
+    isVerified: {
+        type: Boolean,
+        default: false
     }
    
 }, {timestamps: true});

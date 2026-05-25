@@ -15,19 +15,18 @@ exports.signUp = async (req, res, next) => {
         const userDetails = { 
             fullName: req.body.fullName,
             emailAddress: req.body.emailAddress,
-            // password: req.body.password,
-            phoneNumber: `+234${req.body.phoneNumber}`,
-            password: req.body.password
+            password: req.body.password,
+            confirmPassword: req.body.confirmPassword
         };
 
-        //  if ( userDetails.password !== req.body.confirmPassword) {
-        //      return next({
-        //          message: 'passswords do not match',
-        //          statusCode: 400
-        //      })
-        // }
+         if ( userDetails.password !== userDetails.confirmPassword) {
+             return next({
+                 message: 'passswords do not match',
+                 statusCode: 400
+             })
+        }
 
-        const emailExists = await adminModel.findOne({ email: userDetails.emailAddress });
+        const emailExists = await adminModel.findOne({ email: userDetails.emailAddress.toLowerCase() });
         if (emailExists) {
             return next ({
                 message: 'email already exists', 
@@ -45,8 +44,7 @@ exports.signUp = async (req, res, next) => {
 
         const user = new adminModel({
             fullName: userDetails.fullName,
-            emailAddress: userDetails.emailAddress,
-            phoneNumber: userDetails.phoneNumber,
+            emailAddress: userDetails.emailAddress.toLowerCase(),
             otp: OTP,
             password: hashedPassword,
 
@@ -57,7 +55,6 @@ exports.signUp = async (req, res, next) => {
         const data = {
             fullName: user.fullName,
             emailAddress: user.emailAddress,
-            phoneNumber: user.phoneNumber
         };
 
          
@@ -105,12 +102,13 @@ exports.verifyEmail = async(req,res)=> {
         })
        }
 
-       //verify the user and delete the OTP
-       user.isVerfied = true;
-    //    user.otp = null
-    //    user.otpExpiresAt = null
 
-    //    await brevo(user.emailAddress, user.fullName, "Your email has been successfully verified. You can now log in to your account.")
+        await brevo(user.emailAddress, user.fullName, "Your email has been successfully verified. You can now log in to your account.")
+
+        //verify the user and delete the OTP
+       user.isVerified = true;
+       user.otp = null
+       user.otpExpiresAt = null
 
        await user.save()
 

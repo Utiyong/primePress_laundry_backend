@@ -6,11 +6,17 @@ const bookingRouter = require('./routes/bookRoute');
 //const rateLimiter = require('./middleware/rateLimiter');
 const swaggerUI = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc')
+const cors = require('cors')
+const morgan = require('morgan');
+const redisClient = require('./config/redis');
 
 const app = express()
 app.use(express.json())
 app.use('/api/v1/user', adminRouter)
 app.use('/api/v1/booking', bookingRouter)
+const allowedOrigins = ['https://localhost:3000','https://picker-frontend.onrender.com']
+app.use(cors({origin:allowedOrigins }))
+app.use(morgan('dev'))
 
 
 const swaggerDefinition = {
@@ -79,6 +85,13 @@ app.use((req, res, next) => {
 
 mongoose.connect(process.env.MONGODB_URI)
 .then(() => {
+   redisClient.connect()
+      .then(() => {
+        console.log('Redis connected successfully');
+      })
+      .catch((error) => {
+        console.log('Redis connection error:', error.message);
+      });
     console.log('Database connected successfully');
     app.listen(PORT, ()=> {
         console.log(`Server listening to Port: ${PORT}`);
