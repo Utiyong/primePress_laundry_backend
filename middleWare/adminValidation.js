@@ -17,6 +17,11 @@ exports.signUpValidator = (req, res, next) =>{
             'any.required': 'Password is required',
             'string.empty': 'password cannot be empty',
             'string.pattern.base': 'password must be at least 6 letters long and must include at least 1 upper case and lower case'
+        }),
+        confirmPassword: joi.string().valid(joi.ref('password')).required().messages({
+            'any.required': 'Confirm Password is required',
+            'string.empty': 'Confirm Password cannot be empty',
+            'any.only': 'Confirm Password must match Password'
         })
     })
 

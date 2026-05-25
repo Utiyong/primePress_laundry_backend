@@ -1,4 +1,4 @@
-const bookingModel = require('../modelS/booking')
+const bookingModel = require('../models/booking')
 
 
 
@@ -7,7 +7,7 @@ exports.createBooking = async(req, res) =>{
     try{
         const {name,  phoneNumber, pickUpAddress, pickUpDateAndTime, specialInstructions } = req.body
 
-        const bookings = new bookingModel({
+        const bookings = await bookingModel.create({
             name,
             phoneNumber, 
             pickUpAddress,
@@ -15,7 +15,6 @@ exports.createBooking = async(req, res) =>{
             specialInstructions
         })
 
-        await bookings.save()
 
         res.status(201).json({
             message: 'successfully created a booking',
@@ -35,13 +34,13 @@ exports.createBooking = async(req, res) =>{
 
 exports.getAllBookings = async(req, res, next) => {
     try {
-        const users = await bookingModel.find()
+        const bookings = await bookingModel.find()
 
         
         
         res.status(200).json({
-            message: 'All users fetched successfully',
-            data: users
+            message: 'All bookings fetched successfully',
+            data: bookings
         })
 
     } catch (error) {
