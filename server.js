@@ -12,9 +12,9 @@ const redisClient = require('./config/redis');
 
 const app = express()
 app.use(express.json())
-app.use('/api/v1/user', adminRouter)
+app.use('/api/v1/admin', adminRouter)
 app.use('/api/v1/booking', bookingRouter)
-const allowedOrigins = ['https://localhost:3000','https://picker-frontend.onrender.com']
+const allowedOrigins = ['https://localhost:5000','https://PrimePressLaundry.com']
 app.use(cors({origin:allowedOrigins }))
 app.use(morgan('dev'))
 
