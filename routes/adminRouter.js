@@ -2,43 +2,42 @@ const { signUp, getAllUsers, getOneUser, login, verifyEmail, resendOTP, forgetPa
 
 const router = require('express').Router();
 
-const {signUpValidator, verifyEmailValidator, resendOTPValidator, forgetPassValidator, resetPasswordValidator, loginValidator} = require('../middleWare/adminValidation');
-const rateLimiter = require('../middleWare/rateLimiter');
+const {signUpValidator, verifyEmailValidator, resendOTPValidator, forgetPassValidator, resetPasswordValidator, loginValidator} = require('../middleWare/adminValidation')
 
 /**
  * @swagger
  * components:
  *   schemas:
- *     Admin:
+ *     User:
  *       type: object
  *       properties:
  *         name:
  *           type: string
- *           description: Admin's full name
+ *           description: User's full name
  *           example: John Doe
  *         email:
  *           type: string
- *           description: Admin email address
+ *           description: User email address
  *           example: example@example.com
  *         password:
  *           type: string
- *           description: Admin password
+ *           description: User password
  *           example: password123
  *         confirmPassword:
  *           type: string
- *           description: Confirm admin password
+ *           description: Confirm user password
  *           example: password123
  */
 
 
 /**
  * @swagger
- * /api/v1/admin/signUp:
+ * /api/v1/user/signUp:
  *   post:
  *     tags:
- *       - Admin
- *     summary: Sign up a new admin
- *     description: Sign up a new admin with fullName, emailAddress and password
+ *       - User
+ *     summary: Sign up a new user
+ *     description: Sign up a new user with fullName, emailAddress and password
  *     requestBody:
  *       required: true
  *       content:
@@ -48,23 +47,23 @@ const rateLimiter = require('../middleWare/rateLimiter');
  *             properties:
  *               fullName:
  *                 type: string
- *                 description: Admin's full name
+ *                 description: User's full name
  *                 example: John Doe
  *               emailAddress:
  *                 type: string
- *                 description: Admin email address
+ *                 description: User email address
  *                 example: example@example.com
  *               password:
  *                 type: string
- *                 description: Admin password
+ *                 description: User password
  *                 example: Password123
  *               confirmPassword:
  *                 type: string
- *                 description: Confirm admin password
+ *                 description: Confirm user password
  *                 example: Password123
  *     responses:
  *       201:
- *         description: Admin signed up successfully
+ *         description: User signed up successfully
  *         content:
  *           application/json:
  *             schema:
@@ -73,21 +72,21 @@ const rateLimiter = require('../middleWare/rateLimiter');
  *                 message:
  *                   type: string
  *                   description: A success message
- *                   example: Admin signed up successfully
+ *                   example: User signed up successfully
  */
 router.post('/signUp', signUpValidator, signUp)
 
 /**
  * @swagger
- * /api/v1/admin/getUsers:
+ * /api/v1/user/getUsers:
  *   get:
  *     tags:
- *       - Admin
- *     summary: All admins in the database
- *     description: Get all admins in the database
+ *       - User
+ *     summary: All users
+ *     description: Get all users in the database
  *     responses:
  *       200:
- *         description: List of admins
+ *         description: List of users
  *         content:
  *           application/json:
  *             schema:
@@ -135,12 +134,12 @@ router.get('/getUsers',getAllUsers)
 
 /** 
  * @swagger
- * /api/v1/admin/verifyEmail:
+ * /api/v1/user/verifyEmail:
  *   post:
  *     tags:
- *       - Admin
- *     summary: Verify admin email
- *     description: Verify an admin's email address
+ *       - User
+ *     summary: Verify user email
+ *     description: Verify a user's email address
  *     requestBody:
  *       required: true
  *       content:
@@ -150,7 +149,7 @@ router.get('/getUsers',getAllUsers)
  *             properties:
  *               emailAddress:
  *                 type: string
- *                 description: Admin email address
+ *                 description: User email address
  *                 example: example@example.com
  *               otp:
  *                 type: string
@@ -173,10 +172,10 @@ router.post('/verifyEmail', verifyEmail)
 
 /** 
  * @swagger
- * /api/v1/admin/resendOTP:
+ * /api/v1/user/resendOTP:
  *   post:
  *     tags:
- *       - Admin
+ *       - User
  *     summary: Resend OTP
  *     description: Resend a new one-time password
  *     requestBody:
@@ -188,7 +187,7 @@ router.post('/verifyEmail', verifyEmail)
  *             properties:
  *               emailAddress:
  *                 type: string
- *                 description: Admin email address
+ *                 description: User email address
  *                 example: example@example.com
  *     responses:
  *       200:
@@ -207,41 +206,41 @@ router.post('/resendOTP', resendOTP)
 
 /** 
  * @swagger
- * /api/v1/admin/getOneUser/{id}:
+ * /api/v1/user/getOneUser/{id}:
  *   get:
  *     tags:
- *       - Admin
- *     summary: Get an admin by ID
- *     description: Retrieve an admin by their ID
+ *       - User
+ *     summary: Get a user by ID
+ *     description: Retrieve a user by their ID
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
- *         description: The admin ID
+ *         description: The user ID
  *         schema:
  *           type: string
  *           example: 69cc1f3183fdc152c944204f
  *     responses:
  *       200:
- *         description: The requested admin
+ *         description: The requested user
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
  *                 data:
- *                   $ref: '#/components/schemas/Admin'
+ *                   $ref: '#/components/schemas/User'
  */
 router.get('/getOneUser/:id', getOneUser)
 
 /**
  * @swagger
- * /api/v1/admin/login:
+ * /api/v1/user/login:
  *   post:
  *     tags:
- *       - Admin
- *     summary: login an admin
- *     description: Login an existing admin with emailAddress and password
+ *       - User
+ *     summary: login a user
+ *     description: Login an existing user with emailAddress and password
  *     requestBody:
  *       required: true
  *       content:
@@ -251,15 +250,15 @@ router.get('/getOneUser/:id', getOneUser)
  *             properties:
  *               emailAddress:
  *                 type: string
- *                 description: Admin email address
+ *                 description: User email address
  *                 example: example@example.com
  *               password:
  *                 type: string
- *                 description: Admin password
+ *                 description: User password
  *                 example: password123
  *     responses:
  *       201:
- *         description: Admin logged in successfully
+ *         description: User logged in successfully
  *         content:
  *           application/json:
  *             schema:
@@ -268,18 +267,18 @@ router.get('/getOneUser/:id', getOneUser)
  *                 message:
  *                   type: string
  *                   description: A success message
- *                   example: Admin logged in successfully
+ *                   example: User logged in successfully
  */
-router.post('/login', loginValidator, rateLimiter, login)
+router.post('/login', loginValidator, login)
 
 /** 
  * @swagger
- * /api/v1/admin/forget-password:
+ * /api/v1/user/forget-password:
  *   post:
  *     tags:
- *       - Admin
+ *       - User
  *     summary: Request password reset
- *     description: Request a password reset for an admin
+ *     description: Request a password reset for a user
  *     requestBody:
  *       required: true
  *       content:
@@ -289,7 +288,7 @@ router.post('/login', loginValidator, rateLimiter, login)
  *             properties:
  *               emailAddress:
  *                 type: string
- *                 description: Admin email address
+ *                 description: User email address
  *                 example: example@example.com
  *     responses:
  *       200:
@@ -308,12 +307,12 @@ router.post('/forget-password', forgetPass)
 
 /** 
  * @swagger
- * /api/v1/admin/reset-password:
+ * /api/v1/user/reset-password:
  *   post:
  *     tags:
- *       - Admin
- *     summary: Reset admin password
- *     description: Reset an admin's password with a valid token
+ *       - User
+ *     summary: Reset user password
+ *     description: Reset a user's password with a valid token
  *     requestBody:
  *       required: true
  *       content:
@@ -323,8 +322,8 @@ router.post('/forget-password', forgetPass)
  *             properties:
  *               newPassword:
  *                 type: string
- *                 description: The new password for the admin
- *                 example: Newpassword123
+ *                 description: The new password for the user
+ *                 example: newpassword123
  *     responses:
  *       200:
  *         description: Password reset successfully
