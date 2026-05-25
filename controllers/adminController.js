@@ -65,7 +65,7 @@ exports.signUp = async (req, res, next) => {
 
         
         res.status(201).json({
-            message: 'User created successfully',
+            message: 'Admin created successfully',
             data: user
         });
 
