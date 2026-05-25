@@ -14,7 +14,7 @@ const app = express()
 app.use(express.json())
 app.use('/api/v1/admin', adminRouter)
 app.use('/api/v1/booking', bookingRouter)
-const allowedOrigins = ['https://localhost:5000','https://PrimePressLaundry.com']
+const allowedOrigins = ['https://localhost:5000','https://primepress-laundry-backend.onrender.com']
 app.use(cors({origin:allowedOrigins }))
 app.use(morgan('dev'))
 
