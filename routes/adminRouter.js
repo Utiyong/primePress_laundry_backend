@@ -45,6 +45,11 @@ const rateLimiter = require('../middleWare/rateLimiter');
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - fullName
+ *               - emailAddress
+ *               - password
+ *               - confirmPassword
  *             properties:
  *               fullName:
  *                 type: string
@@ -110,14 +115,6 @@ router.post('/signUp', signUpValidator, signUp)
  *                         type: string
  *                         description: The user's email
  *                         example: example@example.com
- *                       password:
- *                         type: string
- *                         description: The user's password
- *                         example: Password123
- *                       confirmPassword:
- *                         type: string
- *                         description: The user's password
- *                         example: Password123
  *                       isVerified:
  *                         type: boolean
  *                         description: The user's verification status
@@ -131,7 +128,7 @@ router.post('/signUp', signUpValidator, signUp)
  *                         description: The user's update date
  *                         example: 2026-01-01T00:00:00.000Z
  */
-router.get('/getUsers',getAllUsers)
+router.get('/getUsers', getAllUsers)
 
 /** 
  * @swagger
@@ -147,6 +144,9 @@ router.get('/getUsers',getAllUsers)
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - emailAddress
+ *               - otp
  *             properties:
  *               emailAddress:
  *                 type: string
@@ -185,6 +185,8 @@ router.post('/verifyEmail', verifyEmail)
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - emailAddress
  *             properties:
  *               emailAddress:
  *                 type: string
@@ -248,6 +250,9 @@ router.get('/getOneUser/:id', getOneUser)
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - emailAddress
+ *               - password
  *             properties:
  *               emailAddress:
  *                 type: string
@@ -286,6 +291,8 @@ router.post('/login', loginValidator, rateLimiter, login)
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - emailAddress
  *             properties:
  *               emailAddress:
  *                 type: string
@@ -320,8 +327,15 @@ router.post('/forget-password', forgetPass)
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - emailAddress
+ *               - password
  *             properties:
- *               newPassword:
+ *               emailAddress:
+ *                 type: string
+ *                 description: Admin email address
+ *                 example: example@example.com
+ *               password:
  *                 type: string
  *                 description: The new password for the admin
  *                 example: Newpassword123
@@ -338,7 +352,7 @@ router.post('/forget-password', forgetPass)
  *                   description: A success message
  *                   example: Password reset successfully
  */
-router.post('/reset-Password', resetPassword )
+router.post('/reset-Password', resetPassword)
 
 
 module.exports = router;
