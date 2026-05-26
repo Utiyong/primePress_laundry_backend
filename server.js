@@ -9,10 +9,9 @@ const swaggerJsdoc = require('swagger-jsdoc')
 const cors = require('cors')
 const morgan = require('morgan');
 const redisClient = require('./config/redis');
-const allowedOrigins = ['https://primepress-laundry-backend.onrender.com', 'http://localhost:5000'] 
 const app = express()
 app.use(express.json())
-app.use(cors({origin:allowedOrigins }))
+app.use(cors())
 app.use(morgan('dev'))
 app.use('/api/v1/admin', adminRouter)
 app.use('/api/v1/booking', bookingRouter)
@@ -37,14 +36,14 @@ const swaggerDefinition = {
       url: 'https://jsonplaceholder.typicode.com',
     },
   },
-  servers: [
-    {
-      url: "http://localhost:5000",
-      description: 'Development server',
-    },
+ servers: [
     {
       url: "https://primepress-laundry-backend.onrender.com",
       description: 'Production server',
+    },
+    {
+      url: "http://localhost:5000",
+      description: 'Development server',
     }
   ],
   security: [
