@@ -9,14 +9,16 @@ const swaggerJsdoc = require('swagger-jsdoc')
 const cors = require('cors')
 const morgan = require('morgan');
 const redisClient = require('./config/redis');
-
+const allowedOrigins = ['https://primepress-laundry-backend.onrender.com', 'http://localhost:5000'] 
 const app = express()
 app.use(express.json())
-app.use('/api/v1/admin', adminRouter)
-app.use('/api/v1/booking', bookingRouter)
-const allowedOrigins = ['https://localhost:5000','https://primepress-laundry-backend.onrender.com']
 app.use(cors({origin:allowedOrigins }))
 app.use(morgan('dev'))
+app.use('/api/v1/admin', adminRouter)
+app.use('/api/v1/booking', bookingRouter)
+
+
+
 
 
 const swaggerDefinition = {
@@ -40,6 +42,10 @@ const swaggerDefinition = {
       url: "http://localhost:5000",
       description: 'Development server',
     },
+    {
+      url: "https://primepress-laundry-backend.onrender.com",
+      description: 'Production server',
+    }
   ],
   security: [
     {
@@ -67,17 +73,17 @@ const swaggerSpec = swaggerJsdoc(options);
 app.use('/api/v1/documentations', swaggerUI.serve, swaggerUI.setup(swaggerSpec))
 
 
-app.use((error, req, res, next)=> {
+app.use((error, req, res, next) => {
     console.log(error);
-    res.status(error.statusCode).json({
-        message: error.message,
-        status: error.statusCode
+
+    res.status(error.statusCode || 500).json({
+        message: error.message || 'Internal Server Error',
+        status: error.statusCode || 500
     })
 })
-
 const mongoose = require('mongoose');
 app.use((req, res, next) => {
-    res.status(500).json({
+    res.status(404).json({
         message: `route ${req.originalUrl} and ${req.method} not found`
     })
 })
