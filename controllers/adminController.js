@@ -26,13 +26,13 @@ exports.signUp = async (req, res, next) => {
              })
         }
 
-        const emailExists = await adminModel.findOne({ email: userDetails.emailAddress.toLowerCase() });
-        if (emailExists) {
-            return next ({
-                message: 'email already exists', 
-                statusCode: 400
-            });
-        }
+        // const emailExists = await adminModel.findOne({ emailAddress: userDetails.emailAddress.toLowerCase() });
+        // if (emailExists) {
+        //     return next ({
+        //         message: 'email already exists', 
+        //         statusCode: 400
+        //     });
+        // }
 
        // const OTP = otpGenerator.generate(4, {upperCaseAlphabets: false, lowerCaseAlphabets: false, specialChars: false });
         const expiresAt = new Date(Date.now() + 10 * 60000);
@@ -99,12 +99,13 @@ exports.verifyEmail = async(req,res)=> {
         })
        }
 
-       if ( Date.now() > user.otpExpiresAt || user.otp !== otp) {
-        
-        return res.status (400).json({
-            message: 'Invalid OTP'
-        })
-       }
+        if (Date.now() > user.otpExpiresAt) {
+            return res.status(400).json({ message: 'invalid OTP' });
+        }
+
+        if (String(user.otp).trim() !== String(otp).trim()) {
+            return res.status(400).json({ message: 'Invalid OTP' });
+        }
 
 
         // await brevo(user.emailAddress, user.fullName, "Your email has been successfully verified. You can now log in to your account.")
