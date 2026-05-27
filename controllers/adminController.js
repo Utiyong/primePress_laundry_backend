@@ -98,13 +98,13 @@ exports.verifyEmail = async(req,res)=> {
             message: 'User not found'
         })
        }
+       if (Date.now() > user.otpExpiresAt) {
+            return res.status(400).json({ message: 'invalid Otp' });
+        }
 
-       if ( Date.now() > user.otpExpiresAt || user.otp !== otp) {
-        
-        return res.status (400).json({
-            message: 'Invalid OTP'
-        })
-       }
+        if (String(user.otp).trim() !== String(otp).trim()) {
+            return res.status(400).json({ message: 'Invalid OTP' });
+        }
 
 
         // await brevo(user.emailAddress, user.fullName, "Your email has been successfully verified. You can now log in to your account.")
