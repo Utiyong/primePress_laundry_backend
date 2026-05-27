@@ -36,11 +36,13 @@ exports.signUp = async (req, res, next) => {
 
        // const OTP = otpGenerator.generate(4, {upperCaseAlphabets: false, lowerCaseAlphabets: false, specialChars: false });
         const expiresAt = new Date(Date.now() + 10 * 60000);
+        
         const OTP = otpGenerator.generate(6, {upperCaseAlphabets: false, lowerCaseAlphabets: false, specialChars: false });
         console.log(OTP)
 
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(userDetails.password, salt);
+         
 
         const user = new adminModel({
             fullName: userDetails.fullName,
@@ -49,6 +51,8 @@ exports.signUp = async (req, res, next) => {
             password: hashedPassword,
 
         });
+
+        user.otpExpiresAt = expiresAt;
 
         await user.save();
 
@@ -95,7 +99,7 @@ exports.verifyEmail = async(req,res)=> {
         })
        }
 
-       if ( Date.now() > user.otpExpiresAt || user.otp != otp) {
+       if ( Date.now() > user.otpExpiresAt || user.otp !== otp) {
         
         return res.status (400).json({
             message: 'Invalid OTP'
@@ -103,7 +107,7 @@ exports.verifyEmail = async(req,res)=> {
        }
 
 
-        await brevo(user.emailAddress, user.fullName, "Your email has been successfully verified. You can now log in to your account.")
+        // await brevo(user.emailAddress, user.fullName, "Your email has been successfully verified. You can now log in to your account.")
 
         //verify the user and delete the OTP
        user.isVerified = true;
@@ -178,23 +182,9 @@ exports.forgetPass = async(req, res) =>{
         }
 
         const OTP = otpGenerator.generate(6, {upperCaseAlphabets:false, lowerCaseAlphabets:false, specialChars:false});
-
-
-        //  const expiresAt = new Date(Date.now() + 1000 * 60 * 5)
-        //  user.otpExpiresAt = expiresAt;
          user.otp = OTP;
-        //  if(Date.now() > user.otpExpiresAt || OTP != user.otp){
-        //     return res.status(400).json({
-        //         message: "invalid Otp"
-        //     })
-        //  }
-
-
-        //  const salt = await bcrypt.genSalt(10)
-        //  const hashPassword = await bcrypt.hash(password, salt)
-
-        //  user.password = hashPassword
-
+         const expiresAt = new Date(Date.now() + 1000 * 60 * 5)
+        user.otpExpiresAt = expiresAt;
          await user.save()
          
          const data = {
