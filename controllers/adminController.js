@@ -52,7 +52,7 @@ exports.signUp = async (req, res, next) => {
             otpExpiresAt: expiresAt
         });
 
-        user.otpExpiresAt = expiresAt;
+
 
         await user.save();
 
