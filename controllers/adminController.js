@@ -35,7 +35,7 @@ exports.signUp = async (req, res, next) => {
         // }
 
        // const OTP = otpGenerator.generate(4, {upperCaseAlphabets: false, lowerCaseAlphabets: false, specialChars: false });
-        const expiresAt = new Date(Date.now() + 10 * 60000);
+        const expiresAt = new Date(Date.now() + 1000 * 60 * 5)
         
         const OTP = otpGenerator.generate(6, {upperCaseAlphabets: false, lowerCaseAlphabets: false, specialChars: false });
         console.log(OTP)
@@ -100,7 +100,7 @@ exports.verifyEmail = async(req,res)=> {
        }
 
         if (Date.now() > user.otpExpiresAt) {
-            return res.status(400).json({ message: 'invalid OTP' });
+            return res.status(400).json({ message: 'Invalid OTP' });
         }
 
         if (String(user.otp).trim() !== String(otp).trim()) {
